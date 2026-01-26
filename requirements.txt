@@ -1,0 +1,9 @@
+PyQt6
+vosk
+sounddevice
+pyttsx3
+plyer
+fastapi
+uvicorn
+apscheduler
+telethon
