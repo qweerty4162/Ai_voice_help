@@ -1,4 +1,3 @@
-# client/input/voice_input.py
 import os
 import json
 import pyaudio
@@ -12,9 +11,7 @@ MODEL_PATH = os.path.join(BASE_DIR, "model")
 
 model = Model(MODEL_PATH)
 recognizer = KaldiRecognizer(model, 16000)
-
 audio = pyaudio.PyAudio()
-
 
 def listen_voice():
     stream = audio.open(
@@ -31,7 +28,6 @@ def listen_voice():
         data = stream.read(4000, exception_on_overflow=False)
         if recognizer.AcceptWaveform(data):
             result = json.loads(recognizer.Result())
-            text = result.get("text", "")
             stream.stop_stream()
             stream.close()
-            return text
+            return result.get("text", "")

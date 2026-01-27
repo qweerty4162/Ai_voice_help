@@ -2,37 +2,35 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# Загружаем .env
 load_dotenv()
 
 API_KEY = os.getenv("DEEPSEEK_API_KEY")
-URL = "https://api.deepseek.com/chat/completions"
+API_URL = os.getenv("DEEPSEEK_API_URL")
 
-if not API_KEY:
-    raise RuntimeError("DEEPSEEK_API_KEY не найден в .env")
+class DeepSeekClient:
+    def __init__(self):
+        if not API_KEY:
+            raise RuntimeError("DEEPSEEK_API_KEY не найден в .env")
 
+    def ask(self, text: str) -> str:
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [
+                {"role": "system", "content": "Ты голосовой помощник."},
+                {"role": "user", "content": text}
+            ]
+        }
 
-def parse_command(text: str) -> dict:
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
+        response = requests.post(
+            API_URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json=payload,
+            timeout=60
+        )
 
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "system", "content": "Ты голосовой помощник. Отвечай кратко."},
-            {"role": "user", "content": text}
-        ],
-        "temperature": 0.3
-    }
-
-    response = requests.post(URL, headers=headers, json=payload, timeout=20)
-    response.raise_for_status()
-
-    answer = response.json()["choices"][0]["message"]["content"]
-
-    return {
-        "intent": "chat",
-        "response": answer
-    }
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]

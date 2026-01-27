@@ -1,21 +1,14 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from server.core.deepseek_client import parse_command
-from server.core.executor import execute_command
+from server.core.deepseek_client import DeepSeekClient
 
 router = APIRouter()
+deepseek = DeepSeekClient()
 
-
-class CommandRequest(BaseModel):
+class Command(BaseModel):
     text: str
 
-
-class CommandResponse(BaseModel):
-    answer: str
-
-
-@router.post("/command", response_model=CommandResponse)
-def command_endpoint(cmd: CommandRequest):
-    parsed = parse_command(cmd.text)
-    answer = execute_command(parsed)
+@router.post("/command")
+def process_command(cmd: Command):
+    answer = deepseek.ask(cmd.text)
     return {"answer": answer}
